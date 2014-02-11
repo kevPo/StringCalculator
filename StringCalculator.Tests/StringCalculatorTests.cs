@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
 namespace StringCalculator.Tests
 {
@@ -41,6 +42,20 @@ namespace StringCalculator.Tests
         public void TestDefinedDelimiter()
         {
             Assert.That(calculator.Add("//;\n1;2"), Is.EqualTo(3));
+        }
+
+        [Test]
+        public void TestExceptionsForNegatives()
+        {
+            Exception exception = Assert.Throws<Exception>(new TestDelegate(() => calculator.Add("1,-1,-2")));
+            Assert.That(exception.Message, Is.EqualTo("negatives not allowed: -1 -2"));
+        }
+
+        [Test]
+        public void TestExceptionsForOneNegativeNumber()
+        {
+            Exception exception = Assert.Throws<Exception>(new TestDelegate(() => calculator.Add("-1")));
+            Assert.That(exception.Message, Is.EqualTo("negatives not allowed: -1"));
         }
 
     }

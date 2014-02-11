@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace StringCalculator
 {
@@ -18,7 +19,7 @@ namespace StringCalculator
             return CalculateForMultipleNumbers(input);
         }
 
-        private int CalculateForMultipleNumbers(String input)
+        private Int32 CalculateForMultipleNumbers(String input)
         {
             var inputDefinedDelimiter = input.StartsWith("//");
 
@@ -28,37 +29,78 @@ namespace StringCalculator
                 delimiter = ',';
 
             var numbers = ExtractNumbersFromRawString(inputDefinedDelimiter ? input.Substring(3) : input);
+            ValidateNoNegatives(numbers);
             return CalculateResults(numbers);
+        }
+
+        private void ValidateNoNegatives(List<Int32> numbers)
+        {
+            List<Int32> negativeNumbers = new List<Int32>();
+            foreach(var number in numbers)
+            {
+                if (number < 0)
+                    negativeNumbers.Add(number);
+            }
+
+            if (negativeNumbers.Any())
+            {
+                var errorMessage = "negatives not allowed: ";
+                foreach (var negativeNumber in negativeNumbers)
+                    errorMessage += negativeNumber + " ";
+                
+                throw new Exception(errorMessage);
+            }
         }
 
         private List<Int32> ExtractNumbersFromRawString(String input)
         {
             var delimitedNumbers = input.Replace('\n', delimiter);
             var rawNumbers = delimitedNumbers.Split(delimiter);
-
+            
             return ConvertRawNumbersToList(rawNumbers);
         }
 
-        private List<int> ConvertRawNumbersToList(String[] rawNumbers)
+        private List<Int32> ConvertRawNumbersToList(String[] rawNumbers)
         {
             List<Int32> numbers = new List<Int32>();
+
             foreach(var number in rawNumbers)
             {
                 if (!String.IsNullOrEmpty(number))
-                    numbers.Add(Int32.Parse(number));
+                {
+                    var numberToAdd = Int32.Parse(number);
+                    
+                    if (numberToAdd < 0)
+                    {
+                        var errorMessage = CreateNegativeNumberErrorMessage(rawNumbers);
+                        throw new Exception(errorMessage);
+                    }
+                    else
+                        numbers.Add(numberToAdd);
+                }
             }
 
             return numbers;
         }
 
-        private int CalculateResults(List<Int32> numbers)
+        private String CreateNegativeNumberErrorMessage(String[] rawNumbers)
+        {
+            var errorMessage = "negatives not allowed: ";
+            foreach(var number in rawNumbers)
+            {
+                if (number.Contains("-"))
+                    errorMessage += number + " ";
+            }
+
+            return errorMessage.Trim();
+        }
+
+        private Int32 CalculateResults(List<Int32> numbers)
         {
             Int32 total = 0;
             
             foreach(var number in numbers)
-            {
                 total += number;
-            }
 
             return total;
         }
