@@ -4,9 +4,12 @@ namespace StringCalculator
 {
     public class StringCalculator
     {
-        public int Add(String input)
+        public Int32 Add(String input)
         {
-            return 0;
+            if (String.IsNullOrEmpty(input))
+                return 0;
+
+            return Int32.Parse(input);
         }
     }
 }
