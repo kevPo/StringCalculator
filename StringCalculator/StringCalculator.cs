@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace StringCalculator
 {
@@ -19,22 +20,35 @@ namespace StringCalculator
 
         private Int32 CalculateForMultipleNumbers(String input)
         {
-            var delimiter = ExtractDelimiter(input);
-            var formattedInput = FormatData(input, delimiter);
-            var numbers = ExtractNumbersFromRawString(formattedInput, delimiter);
+            var delimiters = ExtractDelimiters(input);
+            var formattedInput = FormatData(input, delimiters);
+            var numbers = ExtractNumbersFromRawString(formattedInput, delimiters);
             ValidateNoNegatives(numbers);
             
             return CalculateResults(numbers);
         }
 
-        private String ExtractDelimiter(String input)
+        private List<String> ExtractDelimiters(String input)
         {
-            if (MultipleDefinedDelimiters(input))
-                return input.Substring(3, input.IndexOf(']') - 3);
+            if (ComplexDefinedDelimiters(input))
+                return GetComplexDefinedDelimiters(input);
             else if (SingleDefinedDelimiter(input))
-                return input.Substring(2, 1);
+                return new List<String> { input.Substring(2, 1) };
             else
-                return ",";
+                return new List<String> { "," };
+        }
+
+        private List<String> GetComplexDefinedDelimiters(String input)
+        {
+            //http://stackoverflow.com/questions/1811183/how-to-extract-the-contents-of-square-brackets-in-a-string-of-text-in-c-sharp-us
+            var delimiters = Regex.Matches(input, @"\[([^]]*)\]").Cast<Match>().Select(x => x.Groups[1].Value).ToList();
+
+            return delimiters;
+        }
+
+        private Boolean ComplexDefinedDelimiters(String input)
+        {
+            return input.StartsWith("//[");
         }
 
         private Boolean SingleDefinedDelimiter(String input)
@@ -42,25 +56,20 @@ namespace StringCalculator
             return input.StartsWith("//");
         }
 
-        private Boolean MultipleDefinedDelimiters(String input)
+        private String FormatData(String input, List<String> delimiters)
         {
-            return input.StartsWith("//[");
-        }
+            input = input.Replace("\n", delimiters[0]);
 
-        private String FormatData(String input, String delimiter)
-        {
-            input = input.Replace("\n", delimiter);
-
-            if (MultipleDefinedDelimiters(input))
-                return input.Substring(input.IndexOf(']') + 1);
+            if (ComplexDefinedDelimiters(input))
+                return input.Substring(input.LastIndexOf(']') + 1);
             else if (SingleDefinedDelimiter(input))
                 return input.Substring(3);
             else return input;
         }
 
-        private List<Int32> ExtractNumbersFromRawString(String input, String delimiter)
+        private List<Int32> ExtractNumbersFromRawString(String input, List<String> delimiters)
         {
-            var rawNumbers = input.Split(new[] { delimiter }, StringSplitOptions.None);
+            var rawNumbers = input.Split(delimiters.ToArray(), StringSplitOptions.None);
 
             return ConvertRawNumbersToList(rawNumbers);
         }
