@@ -58,5 +58,11 @@ namespace StringCalculator.Tests
             Assert.That(exception.Message, Is.EqualTo("negatives not allowed: -1"));
         }
 
+        [Test]
+        public void TestIgnoreNumbersLargerThan1000()
+        {
+            Assert.That(calculator.Add("2,1001"), Is.EqualTo(2));
+        }
+
     }
 }

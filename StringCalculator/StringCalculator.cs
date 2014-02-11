@@ -75,7 +75,7 @@ namespace StringCalculator
                         var errorMessage = CreateNegativeNumberErrorMessage(rawNumbers);
                         throw new Exception(errorMessage);
                     }
-                    else
+                    else if (numberToAdd <= 1000)
                         numbers.Add(numberToAdd);
                 }
             }
