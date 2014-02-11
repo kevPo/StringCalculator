@@ -64,5 +64,17 @@ namespace StringCalculator.Tests
             Assert.That(calculator.Add("2,1001"), Is.EqualTo(2));
         }
 
+        [Test]
+        public void TestDelimitersOfAnyLength()
+        {
+            Assert.That(calculator.Add("//[***]\n1***2***3"), Is.EqualTo(6));
+        }
+
+        //[Test]
+        //public void TestMultipleDelimiters()
+        //{
+        //    Assert.That(calculator.Add("//[*][%]\n1*2%3"), Is.EqualTo(6));
+        //}
+
     }
 }
