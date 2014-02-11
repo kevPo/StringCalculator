@@ -24,5 +24,12 @@ namespace StringCalculator.Tests
         {
             Assert.That(calculator.Add("1"), Is.EqualTo(1));
         }
+
+        [Test]
+        public void TestMultipleNumbers()
+        {
+            Assert.That(calculator.Add("1,2"), Is.EqualTo(3));
+        }
+
     }
 }
