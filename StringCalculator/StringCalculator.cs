@@ -23,7 +23,6 @@ namespace StringCalculator
             var delimiters = ExtractDelimiters(input);
             var formattedInput = FormatData(input, delimiters);
             var numbers = ExtractNumbersFromRawString(formattedInput, delimiters);
-            ValidateNoNegatives(numbers);
             
             return CalculateResults(numbers);
         }
@@ -76,7 +75,7 @@ namespace StringCalculator
 
         private List<Int32> ConvertRawNumbersToList(String[] rawNumbers)
         {
-            List<Int32> numbers = new List<Int32>();
+            var numbers = new List<Int32>();
 
             foreach (var number in rawNumbers)
             {
@@ -89,7 +88,8 @@ namespace StringCalculator
                         var errorMessage = CreateNegativeNumberErrorMessage(rawNumbers);
                         throw new Exception(errorMessage);
                     }
-                    else if (numberToAdd <= 1000)
+                    
+                    if (numberToAdd <= 1000)
                         numbers.Add(numberToAdd);
                 }
             }
@@ -100,37 +100,14 @@ namespace StringCalculator
         private String CreateNegativeNumberErrorMessage(String[] rawNumbers)
         {
             var errorMessage = "negatives not allowed: ";
-            foreach (var number in rawNumbers)
-            {
-                if (number.Contains("-"))
-                    errorMessage += number + " ";
-            }
-
-            return errorMessage.Trim();
-        }
-
-        private void ValidateNoNegatives(List<Int32> numbers)
-        {
-            List<Int32> negativeNumbers = new List<Int32>();
-            foreach(var number in numbers)
-            {
-                if (number < 0)
-                    negativeNumbers.Add(number);
-            }
-
-            if (negativeNumbers.Any())
-            {
-                var errorMessage = "negatives not allowed: ";
-                foreach (var negativeNumber in negativeNumbers)
-                    errorMessage += negativeNumber + " ";
-                
-                throw new Exception(errorMessage);
-            }
+            var listedNegativeNumbers = String.Join(",", rawNumbers.Where(number => number.Contains("-")));
+            
+            return errorMessage += listedNegativeNumbers;
         }
 
         private Int32 CalculateResults(List<Int32> numbers)
         {
-            Int32 total = 0;
+            var total = 0;
             
             foreach(var number in numbers)
                 total += number;

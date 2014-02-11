@@ -48,7 +48,7 @@ namespace StringCalculator.Tests
         public void TestExceptionsForNegatives()
         {
             Exception exception = Assert.Throws<Exception>(new TestDelegate(() => calculator.Add("1,-1,-2")));
-            Assert.That(exception.Message, Is.EqualTo("negatives not allowed: -1 -2"));
+            Assert.That(exception.Message, Is.EqualTo("negatives not allowed: -1,-2"));
         }
 
         [Test]
