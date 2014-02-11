@@ -37,5 +37,11 @@ namespace StringCalculator.Tests
             Assert.That(calculator.Add("1\n2,3"), Is.EqualTo(6));
         }
 
+        [Test]
+        public void TestDefinedDelimiter()
+        {
+            Assert.That(calculator.Add("//;\n1;2"), Is.EqualTo(3));
+        }
+
     }
 }
