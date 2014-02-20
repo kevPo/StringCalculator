@@ -7,6 +7,8 @@ namespace StringCalculator
 {
     public class StringCalculator
     {
+        private const Int32 maxSize = 1000;
+
         public Int32 Add(String input)
         {
             if (String.IsNullOrEmpty(input))
@@ -27,19 +29,19 @@ namespace StringCalculator
             return CalculateResults(numbers);
         }
 
-        private List<String> ExtractDelimiters(String input)
+        private IEnumerable<String> ExtractDelimiters(String input)
         {
             if (ComplexDefinedDelimiters(input))
                 return GetComplexDefinedDelimiters(input);
             else if (SingleDefinedDelimiter(input))
-                return new List<String> { input.Substring(2, 1) };
+                return new [] { input.Substring(2, 1) };
             else
-                return new List<String> { "," };
+                return new [] { "," };
         }
 
-        private List<String> GetComplexDefinedDelimiters(String input)
+        private IEnumerable<String> GetComplexDefinedDelimiters(String input)
         {
-            //http://stackoverflow.com/questions/1811183/how-to-extract-the-contents-of-square-brackets-in-a-string-of-text-in-c-sharp-us
+            // http://stackoverflow.com/questions/1811183/how-to-extract-the-contents-of-square-brackets-in-a-string-of-text-in-c-sharp-us
             var delimiters = Regex.Matches(input, @"\[([^]]*)\]").Cast<Match>().Select(x => x.Groups[1].Value).ToList();
 
             return delimiters;
@@ -55,9 +57,9 @@ namespace StringCalculator
             return input.StartsWith("//");
         }
 
-        private String FormatData(String input, List<String> delimiters)
+        private String FormatData(String input, IEnumerable<String> delimiters)
         {
-            input = input.Replace("\n", delimiters[0]);
+            input = input.Replace("\n", delimiters.ToArray()[0]);
 
             if (ComplexDefinedDelimiters(input))
                 return input.Substring(input.LastIndexOf(']') + 1);
@@ -66,53 +68,53 @@ namespace StringCalculator
             else return input;
         }
 
-        private List<Int32> ExtractNumbersFromRawString(String input, List<String> delimiters)
+        private IEnumerable<Int32> ExtractNumbersFromRawString(String input, IEnumerable<String> delimiters)
         {
             var rawNumbers = input.Split(delimiters.ToArray(), StringSplitOptions.None);
-
-            return ConvertRawNumbersToList(rawNumbers);
+            var extractedNumbers = ConvertRawNumbersToList(rawNumbers);
+            var numbersLessThanMax = RemoveNumbersGreaterThanMaxNumber(extractedNumbers);
+            ThrowExceptionForNegativeNumbers(numbersLessThanMax);
+            
+            return numbersLessThanMax;
         }
 
-        private List<Int32> ConvertRawNumbersToList(String[] rawNumbers)
+        private IEnumerable<Int32> ConvertRawNumbersToList(String[] rawNumbers)
         {
             var numbers = new List<Int32>();
 
             foreach (var number in rawNumbers)
             {
                 if (!String.IsNullOrEmpty(number))
-                {
-                    var numberToAdd = Int32.Parse(number);
-
-                    if (numberToAdd < 0)
-                    {
-                        var errorMessage = CreateNegativeNumberErrorMessage(rawNumbers);
-                        throw new Exception(errorMessage);
-                    }
-                    
-                    if (numberToAdd <= 1000)
-                        numbers.Add(numberToAdd);
-                }
+                    numbers.Add(Int32.Parse(number));
             }
 
             return numbers;
         }
 
-        private String CreateNegativeNumberErrorMessage(String[] rawNumbers)
+        private IEnumerable<Int32> RemoveNumbersGreaterThanMaxNumber(IEnumerable<Int32> numbers)
         {
-            var errorMessage = "negatives not allowed: ";
-            var listedNegativeNumbers = String.Join(",", rawNumbers.Where(number => number.Contains("-")));
-            
-            return errorMessage += listedNegativeNumbers;
+            return numbers.ToList().Except(numbers.Where(n => n > maxSize).Select(n => n));
         }
 
-        private Int32 CalculateResults(List<Int32> numbers)
+        private void ThrowExceptionForNegativeNumbers(IEnumerable<Int32> numbers)
         {
-            var total = 0;
-            
-            foreach(var number in numbers)
-                total += number;
+            if (numbers.Any(n => n < 0))
+            {
+                var errorMessage = CreateNegativeNumberErrorMessage(numbers);
+                throw new Exception(errorMessage);
+            }
+        }
 
-            return total;
+        private String CreateNegativeNumberErrorMessage(IEnumerable<Int32> rawNumbers)
+        {
+            return String.Format("negatives not allowed: {0}", 
+                String.Join(",", rawNumbers.Where(number => number < 0))); 
+        }
+
+
+        private Int32 CalculateResults(IEnumerable<Int32> numbers)
+        {
+            return numbers.Sum();
         }
     }
 }
