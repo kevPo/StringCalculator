@@ -23,10 +23,10 @@ namespace StringCalculator
         private Int32 CalculateForMultipleNumbers(String input)
         {
             var delimiters = ExtractDelimiters(input);
-            var formattedInput = FormatData(input, delimiters);
+            var formattedInput = ChopOffDelimiterDefinition(input, delimiters);
             var numbers = ExtractNumbersFromRawString(formattedInput, delimiters);
-            
-            return CalculateResults(numbers);
+
+            return numbers.Sum();
         }
 
         private IEnumerable<String> ExtractDelimiters(String input)
@@ -57,7 +57,7 @@ namespace StringCalculator
             return input.StartsWith("//");
         }
 
-        private String FormatData(String input, IEnumerable<String> delimiters)
+        private String ChopOffDelimiterDefinition(String input, IEnumerable<String> delimiters)
         {
             input = input.Replace("\n", delimiters.ToArray()[0]);
 
@@ -109,12 +109,6 @@ namespace StringCalculator
         {
             return String.Format("negatives not allowed: {0}", 
                 String.Join(",", rawNumbers.Where(number => number < 0))); 
-        }
-
-
-        private Int32 CalculateResults(IEnumerable<Int32> numbers)
-        {
-            return numbers.Sum();
         }
     }
 }

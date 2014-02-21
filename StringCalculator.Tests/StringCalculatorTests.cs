@@ -81,6 +81,5 @@ namespace StringCalculator.Tests
         {
             Assert.That(calculator.Add("//[**][%]\n1**2%3"), Is.EqualTo(6));
         }
-
     }
 }
